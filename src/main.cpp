@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-int PIN_x_axis_pulse_stepper_motor;
-int PIN_x_axis_dir_stepper_motor;
+int PIN_x_axis_pulse_stepper_motor = 16;
+int PIN_x_axis_dir_stepper_motor = 17;
 
 int PIN_y_axis_pulse_stepper_motor;
 int PIN_y_axis_dir_stepper_motor;
@@ -9,10 +9,10 @@ int PIN_y_axis_dir_stepper_motor;
 int time_step_motor_x = 0;
 int time_step_motor_y = 0;
 
-int freq_step_motor = 10000; // 10kHz
+int freq_step_motor = 5000; // 5kHz
 
-float pos_target_x, pos_current_x;
-float pos_target_y, pos_current_y;
+float pos_target_x, pos_current_x=0;
+float pos_target_y, pos_current_y=0;
 
 int mult_mmPerRevo = 2;   // ball screw pitch -mm-
 int mult_step_main = 200; // step count for pulse/rev -motordriver-
@@ -33,13 +33,13 @@ void step_target_y(float value_y)
 
 bool is_at_target_x_axis_motor()
 {
-  if (pos_current_x = pos_target_x)
+  if (pos_current_x == pos_target_x)
     return true;
   return false;
 }
 bool is_at_target_y_axis_motor()
 {
-  if (pos_current_y = pos_target_y)
+  if (pos_current_y == pos_target_y)
     return true;
   return false;
 }
@@ -76,9 +76,11 @@ void stepper_motor_x()
     pos_current_x += 1;
   else
     pos_current_x -= 1;
-  digitalWrite(PIN_x_axis_pulse_stepper_motor, HIGH);
-  delayMicroseconds(3);
+
   digitalWrite(PIN_x_axis_pulse_stepper_motor, LOW);
+  delayMicroseconds(3);
+  digitalWrite(PIN_x_axis_pulse_stepper_motor, HIGH);
+
   time_step_motor_x = micros();
 }
 
@@ -88,9 +90,10 @@ void stepper_motor_y()
     pos_current_y += 1;
   else
     pos_current_y -= 1;
-  digitalWrite(PIN_y_axis_pulse_stepper_motor, HIGH);
-  delayMicroseconds(3);
   digitalWrite(PIN_y_axis_pulse_stepper_motor, LOW);
+  delayMicroseconds(3);
+
+  digitalWrite(PIN_y_axis_pulse_stepper_motor, HIGH);
   time_step_motor_y = micros();
 }
 
@@ -114,12 +117,16 @@ void move_stepper_motor_y()
 void setup()
 {
   Serial.begin(115200);
+  pinMode(PIN_x_axis_pulse_stepper_motor, OUTPUT);
+  pinMode(PIN_x_axis_dir_stepper_motor, OUTPUT);
+  pinMode(PIN_y_axis_pulse_stepper_motor, OUTPUT);
+  pinMode(PIN_y_axis_dir_stepper_motor, OUTPUT);
 }
 
 void loop()
 {
-  step_target_x(100);
+  step_target_x(10010000);
   move_stepper_motor_x();
-  step_target_y(100);
+  step_target_y(100000);
   move_stepper_motor_y();
 }
